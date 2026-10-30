@@ -1,0 +1,4 @@
+interface:
+  display_name: "Capacitor Mobile Build"
+  short_description: "Build Capacitor Android and iOS with the shared CLI"
+  default_prompt: "Use $capacitor-mobile-build to export this Capacitor app for the requested mobile platform."

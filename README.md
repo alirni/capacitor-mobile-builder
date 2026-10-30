@@ -111,3 +111,16 @@ These examples only validate plans. Removing `--dry-run` runs the actual build. 
 Combined builds preflight both platforms before running anything, reuse one web build and publish no artifact if a build command or artifact validation fails. IPA export is local: the generated export settings fix `destination` to `export`, disable version management/symbol upload, and never issue an App Store upload. Provisioning updates are disabled unless explicitly enabled.
 
 The original Android planner remains exported from the package root. New programmatic entry points are `@alirni/capacitor-mobile-builder/mobile` and `@alirni/capacitor-mobile-builder/ios`. iOS command plans and export handling are tested with disposable fixture products; no real signed iOS app has been built as part of this change.
+
+## Codex skill
+
+The reusable [capacitor-mobile-build skill](skills/capacitor-mobile-build/SKILL.md) guides Codex to reuse this CLI for Capacitor Android/iOS exports instead of copying a build script into each application. It keeps platform selection, project settings, signing and artifact verification scoped to the requested output.
+
+To install the skill for your Codex projects, copy its directory from this checkout into your Codex skills directory (normally `~/.codex/skills/`):
+
+```sh
+mkdir -p ~/.codex/skills
+cp -R skills/capacitor-mobile-build ~/.codex/skills/
+```
+
+Refresh or restart Codex if the new skill is not discovered in the current chat. Invoke it explicitly with `$capacitor-mobile-build` or let Codex select it for relevant Capacitor export requests. Re-copy the skill after updating it in this repository; its installation does not copy the builder implementation.

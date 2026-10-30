@@ -1,0 +1,39 @@
+{
+  "name": "@alirni/android-builder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared local Android packaging tool for Capacitor games",
+  "bin": {
+    "android-build": "dist/src/cli.js"
+  },
+  "exports": {
+    ".": "./dist/src/builder.js"
+  },
+  "files": [
+    "dist/src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@11.28.9",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alirni/android-builder.git"
+  },
+  "homepage": "https://github.com/alirni/android-builder#readme",
+  "bugs": {
+    "url": "https://github.com/alirni/android-builder/issues"
+  }
+}

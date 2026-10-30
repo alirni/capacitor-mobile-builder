@@ -1,14 +1,22 @@
 #!/usr/bin/env node
-import {createPlan, describePlan, executePlan} from './builder.js';
+import {createMobilePlan, describeMobilePlan, executeMobilePlan} from './mobile.js';
 import {parseArgs} from './args.js';
 if (process.argv.includes('--help')) {
-  console.log('android-build [sync|apk|bundle] [--project path] [--dry-run] [--offline|--online]\nUses package.json androidBuild settings. --dry-run validates and prints a plan without building, syncing or creating files.');
+  console.log(`mobile-build [build|sync|apk|bundle|simulator|archive|ipa]
+  [--platform android|ios|all] [--project path] [--dry-run]
+  [--android-format apk|bundle] [--ios-mode simulator|archive|ipa]
+  [--offline|--online]
+Default: Android APK. iOS actions select iOS automatically.
+Combined build: build --platform all (APK + IPA), or --ios-mode simulator.
+Uses package.json androidBuild/iosBuild settings. iOS requires macOS, Xcode and a prepared native project.
+Dry runs print validated plans without build/sync/Gradle/Xcode execution or output files.
+IPA export is local; no App Store upload. android-build remains an alias.`);
 } else {
   try {
-    const options = parseArgs(process.argv.slice(2)), plan = createPlan(options);
-    if (options.dryRun) console.log(JSON.stringify(describePlan(plan), null, 2));
-    else executePlan(plan);
+    const options = parseArgs(process.argv.slice(2)), plan = createMobilePlan(options);
+    if (options.dryRun) console.log(JSON.stringify(describeMobilePlan(plan), null, 2));
+    else executeMobilePlan(plan);
   } catch (error) {
-    console.error(error instanceof Error ? error.message : 'Android build failed.'); process.exitCode = 1;
+    console.error(error instanceof Error ? error.message : 'Mobile build failed.'); process.exitCode = 1;
   }
 }

@@ -1,14 +1,17 @@
 {
   "name": "@alirni/android-builder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Shared local Android packaging tool for Capacitor games",
+  "description": "Shared TypeScript Android and iOS packaging tool for Capacitor games",
   "bin": {
-    "android-build": "dist/src/cli.js"
+    "android-build": "dist/src/cli.js",
+    "mobile-build": "dist/src/cli.js"
   },
   "exports": {
-    ".": "./dist/src/builder.js"
+    ".": "./dist/src/builder.js",
+    "./mobile": "./dist/src/mobile.js",
+    "./ios": "./dist/src/ios.js"
   },
   "files": [
     "dist/src",

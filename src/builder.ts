@@ -1,7 +1,7 @@
 import {spawnSync, execFileSync} from 'node:child_process';
-import {existsSync, readFileSync, mkdirSync, copyFileSync, statSync} from 'node:fs';
-import {createRequire} from 'node:module';
+import {existsSync, mkdirSync, copyFileSync, statSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
+import {readProject, isObject as object, capacitorBin, webBuildCommand} from './project.js';
 
 export type Action = 'sync' | 'apk' | 'bundle';
 export interface AndroidBuildConfig {
@@ -38,14 +38,8 @@ export interface PlanOptions {
   nodePath?: string;
   javaHome?: () => string | undefined;
 }
-function object(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
 function readPackage(root: string): PackageInfo {
-  const value: unknown = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-  if (!object(value) || typeof value.version !== 'string' || !/^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(value.version)) {
-    throw Error('package.json must contain a valid version.');
-  }
+  const value = readProject(root);
   const config = value.androidBuild;
   if (!object(config) || typeof config.artifactName !== 'string' || !/^[\w.-]+$/.test(config.artifactName)) {
     throw Error('Set androidBuild.artifactName in the project package.json (letters, digits, _, . and -).');
@@ -70,17 +64,8 @@ export function createPlan(options: PlanOptions): BuildPlan {
   if (!pkg.scripts?.[buildScript]) throw Error(`Missing package script: ${buildScript}`);
   const gradlew = join(android, platform === 'win32' ? 'gradlew.bat' : 'gradlew');
   if (!existsSync(gradlew)) throw Error(`Android Gradle wrapper not found: ${gradlew}`);
-  const projectRequire = createRequire(join(root, 'package.json'));
-  const capPackage: unknown = JSON.parse(readFileSync(projectRequire.resolve('@capacitor/cli/package.json'), 'utf8'));
-  if (!object(capPackage)) throw Error('Invalid Capacitor CLI package.');
-  const capBin = typeof capPackage.bin === 'string' ? capPackage.bin : object(capPackage.bin) ? capPackage.bin.cap : undefined;
-  if (typeof capBin !== 'string') throw Error('Capacitor CLI executable not found.');
-  const cap = resolve(dirname(projectRequire.resolve('@capacitor/cli/package.json')), capBin);
-  const commands: Command[] = [];
-  // npm/pnpm expose their own CLI path inside package scripts. No shell interpolation.
-  if (env.npm_execpath) commands.push({label: 'Build web app', command: node, args: [env.npm_execpath, 'run', buildScript], cwd: root});
-  else if (platform === 'win32') commands.push({label: 'Build web app', command: env.ComSpec ?? 'cmd.exe', args: ['/d', '/c', `npm run ${buildScript}`], cwd: root});
-  else commands.push({label: 'Build web app', command: 'npm', args: ['run', buildScript], cwd: root});
+  const cap = capacitorBin(root);
+  const commands: Command[] = [webBuildCommand(root, buildScript, env, platform, node)];
   commands.push({label: 'Sync Capacitor Android', command: node, args: [cap, 'sync', 'android'], cwd: root});
   const plan: BuildPlan = {root, action: options.action, commands, env, signed: false, config};
   if (options.action === 'sync') return plan;
@@ -133,6 +118,9 @@ export function describePlan(plan: BuildPlan) {
 export function executePlan(plan: BuildPlan, runner: CommandRunner = runCommand) {
   if (plan.action !== 'sync') mkdirSync(plan.env.ANDROID_USER_HOME!, {recursive: true});
   for (const command of plan.commands) runner(command, plan.env);
+  return exportAndroidArtifact(plan);
+}
+export function exportAndroidArtifact(plan: BuildPlan) {
   if (plan.source && plan.output) {
     if (!existsSync(plan.source) || statSync(plan.source).size === 0) throw Error(`Expected Android output missing or empty: ${plan.source}`);
     mkdirSync(dirname(plan.output), {recursive: true});

@@ -11,3 +11,10 @@ dist/
 *.key
 *.apk
 *.aab
+.mobile-build/
+exports/
+*.ipa
+*.app/
+*.xcarchive/
+*.mobileprovision
+*.p12

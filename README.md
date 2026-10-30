@@ -1,12 +1,12 @@
-# Android Builder
+# Mobile Builder — Android and iOS
 
-A shared TypeScript packaging tool for Capacitor projects. It runs a project's web build, Capacitor sync, Gradle wrapper and artifact export using project-specific configuration.
+A shared TypeScript packaging tool for Capacitor projects. Choose Android, iOS or both. It runs the web build once, syncs the requested native platforms, and exports artifacts using Gradle or Xcode. Existing Android commands remain compatible; the repository/package keeps its original name.
 
 It does not contain application code, install SDKs, change application IDs or signing keys, bump versions, upload to app stores or deploy websites.
 
 ## Setup
 
-Requires Node.js 22.12+, an existing Capacitor Android project, installed project dependencies, an Android SDK platform and a compatible JDK. SDK API 36 is the default; configure another API if your project requires it.
+Requires Node.js 22.12+, installed application dependencies and a prepared Capacitor native project for each selected platform. Android needs its SDK and compatible JDK; SDK API 36 is the configurable default. iOS needs macOS and full Xcode, with signing configured for device/IPA outputs.
 
 Clone the tool beside your application checkout, then install and compile it:
 
@@ -91,3 +91,23 @@ For example, `signingEnvPrefix: "EXAMPLE"` uses `EXAMPLE_KEYSTORE`, `EXAMPLE_STO
 Tests cover non-mutating planning, SDK/cache precedence, signing-value redaction, incomplete signing settings, offline mode, Windows command planning, spaced paths, sync-only operation, failure handling and artifact publication. An integration test uses disposable fixture programs to exercise subprocess execution and export; it does not build a real Android application.
 
 All examples and fixtures are intentionally generic and do not identify consuming projects.
+
+## iOS and combined builds (0.2.0)
+
+The CLI also accepts `--platform android|ios|all`. `build` defaults to APK for Android and IPA for iOS. Use `--android-format bundle` for AAB, or `--ios-mode simulator|archive|ipa` to choose an iOS product. `mobile-build` is a second executable name; `android-build` and the existing compiled CLI path remain valid.
+
+From an application directory with the sibling tool compiled:
+
+```sh
+node ../android-builder/dist/src/cli.js build --platform android --dry-run
+node ../android-builder/dist/src/cli.js simulator --dry-run
+node ../android-builder/dist/src/cli.js ipa --dry-run
+node ../android-builder/dist/src/cli.js build --platform all --dry-run
+node ../android-builder/dist/src/cli.js build --platform all --ios-mode simulator --dry-run
+```
+
+These examples only validate plans. Removing `--dry-run` runs the actual build. iOS requires macOS, full Xcode, a prepared Capacitor iOS project and appropriate signing for device/IPA outputs. A simulator `.app` is unsigned and is not an installable iPhone IPA. See [iOS setup and output configuration](docs/ios.md).
+
+Combined builds preflight both platforms before running anything, reuse one web build and publish no artifact if a build command or artifact validation fails. IPA export is local: the generated export settings fix `destination` to `export`, disable version management/symbol upload, and never issue an App Store upload. Provisioning updates are disabled unless explicitly enabled.
+
+The original Android planner remains exported from the package root. New programmatic entry points are `@alirni/android-builder/mobile` and `@alirni/android-builder/ios`. iOS command plans and export handling are tested with disposable fixture products; no real signed iOS app has been built as part of this change.

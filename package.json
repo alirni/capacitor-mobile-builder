@@ -1,5 +1,5 @@
 {
-  "name": "@alirni/android-builder",
+  "name": "@alirni/capacitor-mobile-builder",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -33,10 +33,10 @@
   "packageManager": "pnpm@11.28.9",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alirni/android-builder.git"
+    "url": "git+https://github.com/alirni/capacitor-mobile-builder.git"
   },
-  "homepage": "https://github.com/alirni/android-builder#readme",
+  "homepage": "https://github.com/alirni/capacitor-mobile-builder#readme",
   "bugs": {
-    "url": "https://github.com/alirni/android-builder/issues"
+    "url": "https://github.com/alirni/capacitor-mobile-builder/issues"
   }
 }

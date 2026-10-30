@@ -1,6 +1,6 @@
-# Mobile Builder — Android and iOS
+# Capacitor Mobile Builder — Android and iOS
 
-A shared TypeScript packaging tool for Capacitor projects. Choose Android, iOS or both. It runs the web build once, syncs the requested native platforms, and exports artifacts using Gradle or Xcode. Existing Android commands remain compatible; the repository/package keeps its original name.
+A shared TypeScript packaging tool for Capacitor projects. Choose Android, iOS or both. It runs the web build once, syncs the requested native platforms, and exports artifacts using Gradle or Xcode. Existing Android commands remain compatible; the legacy `android-build` executable remains available.
 
 It does not contain application code, install SDKs, change application IDs or signing keys, bump versions, upload to app stores or deploy websites.
 
@@ -11,8 +11,8 @@ Requires Node.js 22.12+, installed application dependencies and a prepared Capac
 Clone the tool beside your application checkout, then install and compile it:
 
 ```sh
-git clone https://github.com/alirni/android-builder.git
-cd android-builder
+git clone https://github.com/alirni/capacitor-mobile-builder.git
+cd capacitor-mobile-builder
 npm exec --yes --package=pnpm@11.28.9 -- pnpm install --frozen-lockfile
 npm run build
 npm test
@@ -28,10 +28,10 @@ With the tool and application in sibling directories, add commands and settings 
 {
   "scripts": {
     "build": "your existing web build command",
-    "android:plan": "node ../android-builder/dist/src/cli.js apk --dry-run",
-    "android:sync": "node ../android-builder/dist/src/cli.js sync",
-    "android:apk": "node ../android-builder/dist/src/cli.js apk",
-    "android:bundle": "node ../android-builder/dist/src/cli.js bundle"
+    "android:plan": "node ../capacitor-mobile-builder/dist/src/cli.js apk --dry-run",
+    "android:sync": "node ../capacitor-mobile-builder/dist/src/cli.js sync",
+    "android:apk": "node ../capacitor-mobile-builder/dist/src/cli.js apk",
+    "android:bundle": "node ../capacitor-mobile-builder/dist/src/cli.js bundle"
   },
   "androidBuild": {
     "artifactName": "ExampleApp",
@@ -58,7 +58,7 @@ npm run android:apk -- --online      # override configured offline mode
 Or invoke the compiled CLI directly:
 
 ```sh
-node /path/to/android-builder/dist/src/cli.js apk --project /path/to/application --dry-run
+node /path/to/capacitor-mobile-builder/dist/src/cli.js apk --project /path/to/application --dry-run
 ```
 
 `--dry-run` validates configuration, the Capacitor CLI, the wrapper and required SDK paths. It prints planned commands and artifact paths without executing builds/sync/Gradle or creating output/cache directories. On macOS it may read the installed JDK location with `java_home`. It never serializes the inherited environment or signing values. It does not prove that a real Gradle build or device installation will succeed.
@@ -99,15 +99,15 @@ The CLI also accepts `--platform android|ios|all`. `build` defaults to APK for A
 From an application directory with the sibling tool compiled:
 
 ```sh
-node ../android-builder/dist/src/cli.js build --platform android --dry-run
-node ../android-builder/dist/src/cli.js simulator --dry-run
-node ../android-builder/dist/src/cli.js ipa --dry-run
-node ../android-builder/dist/src/cli.js build --platform all --dry-run
-node ../android-builder/dist/src/cli.js build --platform all --ios-mode simulator --dry-run
+node ../capacitor-mobile-builder/dist/src/cli.js build --platform android --dry-run
+node ../capacitor-mobile-builder/dist/src/cli.js simulator --dry-run
+node ../capacitor-mobile-builder/dist/src/cli.js ipa --dry-run
+node ../capacitor-mobile-builder/dist/src/cli.js build --platform all --dry-run
+node ../capacitor-mobile-builder/dist/src/cli.js build --platform all --ios-mode simulator --dry-run
 ```
 
 These examples only validate plans. Removing `--dry-run` runs the actual build. iOS requires macOS, full Xcode, a prepared Capacitor iOS project and appropriate signing for device/IPA outputs. A simulator `.app` is unsigned and is not an installable iPhone IPA. See [iOS setup and output configuration](docs/ios.md).
 
 Combined builds preflight both platforms before running anything, reuse one web build and publish no artifact if a build command or artifact validation fails. IPA export is local: the generated export settings fix `destination` to `export`, disable version management/symbol upload, and never issue an App Store upload. Provisioning updates are disabled unless explicitly enabled.
 
-The original Android planner remains exported from the package root. New programmatic entry points are `@alirni/android-builder/mobile` and `@alirni/android-builder/ios`. iOS command plans and export handling are tested with disposable fixture products; no real signed iOS app has been built as part of this change.
+The original Android planner remains exported from the package root. New programmatic entry points are `@alirni/capacitor-mobile-builder/mobile` and `@alirni/capacitor-mobile-builder/ios`. iOS command plans and export handling are tested with disposable fixture products; no real signed iOS app has been built as part of this change.
